@@ -1,90 +1,100 @@
 
+# Basically uses Dijkstra's method to search for shortest path
 
-def try_all_adjacent(pos, num_traveled, traveled, maze, removed_wall):
-    if pos == [len(maze)-1, len(maze)-1]:
-        return num_traveled
+# Runtime complexity: O(h*w*n), where h is grid height, w is grid width
+# and n is number of walls
 
+# Space complexity: O(h*w)
 
-    print pos, num_traveled, traveled
+# Gets the minimum distance of all unvisited spaces
+# Or returns None if no remaining locations unvisited and
+# have a viable path
+def get_min_dist(distances, visited):
+	min_dist = 999999999
+	min_pos = None
 
+	for x in range(0,len(distances)):
+		for y in range(0,len(distances[0])):
+			if visited[x][y] == 0:
+				if distances[x][y] < min_dist:
+					min_dist = distances[x][y]
+					min_pos = [x, y]
 
-    right = [pos[0]+1,pos[1]]
-    left = [pos[0]-1,pos[1]]
-    up = [pos[0], pos[1]-1]
-    down = [pos[0], pos[1]+1]
-    
-    path_lengths = []
-    
-    if right[0]<len(maze) and right not in traveled:
-    	if maze[right[0]][right[1]] == 0:
-        	traveled.append(right)
-        	path_lengths.append(try_all_adjacent(right, num_traveled+1, traveled, maze, removed_wall))
-        	traveled.pop()
-       	elif not removed_wall:
-       		traveled.append(right)
-        	path_lengths.append(try_all_adjacent(right, num_traveled+1, traveled, maze, True))
-        	traveled.pop()
-        
-    if left[0]>=0 and left not in traveled:
-        if maze[left[0]][left[1]] == 0:
-        	traveled.append(left)
-        	path_lengths.append(try_all_adjacent(left, num_traveled+1, traveled, maze, removed_wall))
-        	traveled.pop()
-       	elif not removed_wall:
-       		traveled.append(left)
-        	path_lengths.append(try_all_adjacent(left, num_traveled+1, traveled, maze, True))
-        	traveled.pop()
-        
-    if up[1]>=0 and up not in traveled:
-    	if maze[up[0]][up[1]] == 0:
-        	traveled.append(up)
-        	path_lengths.append(try_all_adjacent(up, num_traveled+1, traveled, maze, removed_wall))
-        	traveled.pop()
-       	elif not removed_wall:
-       		traveled.append(up)
-        	path_lengths.append(try_all_adjacent(up, num_traveled+1, traveled, maze, True))
-        	traveled.pop()
-        
-    if down[1]<len(maze) and down not in traveled:
-    	if maze[down[0]][down[1]] == 0:
-        	traveled.append(down)
-        	path_lengths.append(try_all_adjacent(down, num_traveled+1, traveled, maze, removed_wall))
-        	traveled.pop()
-       	elif not removed_wall:
-       		traveled.append(down)
-        	path_lengths.append(try_all_adjacent(down, num_traveled+1, traveled, maze, True))
-        	traveled.pop()
+	return min_pos
 
-    if len(path_lengths)==0:
-        return 9999999999999
+# Returns the shortest possible distance given a maze
+# or "infinity" if not possible
+def get_shortest(maze):
 
-    return min(path_lengths)
+    # Essentially infinity in this problem
+    infinity = 999999999
 
+    distances = []
+    visited = []
 
+    for row in maze:
+    	new_row = []
+    	visited_row = []
+    	for col in row:
+    		new_row.append(infinity)
+    		visited_row.append(0)
+    	distances.append(new_row)
+    	visited.append(visited_row)
+
+    distances[0][0] = 1
+
+    current = [0,0]
+
+    while True:
+
+    	if current[0]==len(maze)-1 and current[1]==len(maze[0])-1:
+    		return distances[len(maze)-1][len(maze[0])-1]
+
+    	right = [current[0]+1, current[1]]
+    	left = [current[0]-1, current[1]]
+    	up = [current[0], current[1]-1]
+    	down = [current[0], current[1]+1]
+
+    	current_dist = distances[current[0]][current[1]]
+
+        # Sorry for the repetitious code, could be cleaned up
+
+    	if right[0] < len(maze) and visited[right[0]][right[1]]==0:
+    		if maze[right[0]][right[1]] == 0:
+    			if current_dist + 1 < distances[right[0]][right[1]]:
+    				distances[right[0]][right[1]] = current_dist + 1
+
+    	if left[0] >= 0 and visited[left[0]][left[1]]==0:
+    		if maze[left[0]][left[1]] == 0:
+    			if current_dist + 1 < distances[left[0]][left[1]]:
+    				distances[left[0]][left[1]] = current_dist + 1
+
+    	if up[1] >= 0 and visited[up[0]][up[1]]==0:
+    		if maze[up[0]][up[1]] == 0:
+    			if current_dist + 1 < distances[up[0]][up[1]]:
+    				distances[up[0]][up[1]] = current_dist + 1
+
+    	if down[1] < len(maze[0]) and visited[down[0]][down[1]]==0:
+    		if maze[down[0]][down[1]] == 0:
+    			if current_dist + 1 < distances[down[0]][down[1]]:
+    				distances[down[0]][down[1]] = current_dist + 1
+
+    	visited[current[0]][current[1]] = 1
+
+    	current = get_min_dist(distances, visited)
+    	if current == None:
+    		return infinity
 
 def answer(maze):
-    # your code here
-    
-    pos = [0,0]
-    num_traveled = 1
-    traveled = [[0,0]]
+	shortest_paths = []
 
-    #path_lengths = []
+    # Not the most optimal algorithm here, as it simply
+    # attempts removing every wall and seeing if that is a possible solution
+	for x in range(0,len(maze)):
+		for y in range(0, len(maze[0])):
+			if maze[x][y]==1:
+				maze[x][y] = 0
+				shortest_paths.append(get_shortest(maze))
+				maze[x][y] = 1
 
-    # for row in range(0,len(maze)):
-    # 	for col in range(0,len(maze)):
-    # 		if maze[row][col] == 1:
-    # 			maze[row][col] = 0
-    # 			path_lengths.append(try_all_adjacent(pos, num_traveled, traveled, maze))
-    # 			maze[row][col] = 1
-
-    # if len(path_lengths) == 0:
-    # 	return try_all_adjacent(pos, num_traveled, traveled, maze)
-
-    # return min(path_lengths)
-    return try_all_adjacent(pos, num_traveled, traveled, maze, False)
-    
-
-#print answer([[0,1,1], [1,1,1], [1,1,0]])
-#print answer([[0, 1, 1, 0], [0, 0, 0, 0], [1, 1, 0, 0], [1, 1, 1, 0]])
-print answer([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]])
+	return min(shortest_paths)
