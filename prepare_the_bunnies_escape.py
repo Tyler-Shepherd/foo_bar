@@ -1,4 +1,8 @@
 
+# Problem: Given a grid, find the shortest path distance from upper left corner to bottom right corner
+# Spaces with a 1 cannot be passed, spaces with a 0 can
+# Up to one wall can be removed
+
 # Basically uses Dijkstra's method to search for shortest path
 
 # Runtime complexity: O(h*w*n), where h is grid height, w is grid width
